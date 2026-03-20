@@ -2,7 +2,7 @@ package org.acme;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Entity;
-
+import jakarta.persistence.Column;
 
 /**
  * Example JPA entity defined as a Panache Entity.
@@ -25,6 +25,8 @@ import jakarta.persistence.Entity;
  */
 @Entity
 public class MyEntity extends PanacheEntity {
+    // SECURITY: Limit input length to prevent DoS via excessively large payloads
+    @Column(length = 255)
     public String field;
 }
 
