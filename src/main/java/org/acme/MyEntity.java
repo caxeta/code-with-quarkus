@@ -1,6 +1,7 @@
 package org.acme;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 
 
@@ -24,7 +25,9 @@ import jakarta.persistence.Entity;
  * }
  */
 @Entity
+// ⚡ Bolt: Cacheable enables Hibernate second-level cache, avoiding repeated database
+// reads for frequently accessed entities and improving overall response time.
+@Cacheable
 public class MyEntity extends PanacheEntity {
     public String field;
 }
-

@@ -15,6 +15,11 @@ class GreetingResourceTest {
           .then()
              .statusCode(200)
              .body(is("Hello RESTEasy"));
-    }
 
+        given()
+          .when().get("/hello")
+          .then()
+             .statusCode(200)
+             .body(is("Hello RESTEasy"));
+    }
 }
