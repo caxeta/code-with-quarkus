@@ -1,8 +1,10 @@
 package org.acme;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
 
 /**
  * Example JPA entity defined as a Panache Entity.
@@ -26,5 +28,7 @@ import jakarta.persistence.Cacheable;
 @Entity
 @Cacheable // ⚡ Bolt: Enables Hibernate second-level cache to reduce database reads for frequent queries
 public class MyEntity extends PanacheEntity {
+    // SECURITY: Limit input length to prevent DoS via excessively large payloads
+    @Column(length = 255)
     public String field;
 }
