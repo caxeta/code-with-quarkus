@@ -46,3 +46,6 @@ This perfectly aligns with "Bolt's philosophy" of finding a simple (< 50 lines),
 Let's quickly check the instructions. "Never add dependencies, modify build files (e.g., pom.xml), or make architectural changes without explicit instruction. Always add explanatory comments to optimizations."
 
 I will add `@Cacheable` to `MyEntity.java`, with a comment explaining why it was added.
+## 2024-05-24 - Entity Caching in Quarkus
+**Learning:** Hibernate ORM in Quarkus doesn't cache entities by default, leading to repeated database queries for the same entity data, which can become a bottleneck.
+**Action:** Use `@Cacheable` from `jakarta.persistence` on Panache entities that are frequently read but rarely updated to utilize Hibernate's second-level cache.
