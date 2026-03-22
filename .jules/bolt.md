@@ -49,3 +49,7 @@ I will add `@Cacheable` to `MyEntity.java`, with a comment explaining why it was
 ## 2024-05-24 - Entity Caching in Quarkus
 **Learning:** Hibernate ORM in Quarkus doesn't cache entities by default, leading to repeated database queries for the same entity data, which can become a bottleneck.
 **Action:** Use `@Cacheable` from `jakarta.persistence` on Panache entities that are frequently read but rarely updated to utilize Hibernate's second-level cache.
+
+## 2024-05-25 - HTTP Compression
+**Learning:** Quarkus does not enable HTTP response compression by default. Text-based payloads like JSON from REST endpoints can be compressed to save significant network bandwidth.
+**Action:** Add `quarkus.http.enable-compression=true` to `application.properties` to easily compress large responses and improve overall network delivery time without architecture changes.
