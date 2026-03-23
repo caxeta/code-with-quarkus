@@ -5,6 +5,7 @@ import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -31,6 +32,8 @@ import jakarta.validation.constraints.Size;
 public class MyEntity extends PanacheEntity {
     // SECURITY: Limit input length to prevent DoS via excessively large payloads
     @Size(max = 255)
+    // SECURITY: Validate input to prevent malicious payloads like XSS or injection
+    @Pattern(regexp = "^[a-zA-Z0-9 ]*$", message = "Field must only contain alphanumeric characters and spaces")
     @Column(length = 255)
     public String field;
 }

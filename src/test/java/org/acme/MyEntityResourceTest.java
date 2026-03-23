@@ -22,4 +22,17 @@ class MyEntityResourceTest {
              .log().all()
              .statusCode(400);
     }
+
+    @Test
+    void testCreateEntityWithMaliciousPayload() {
+        String jsonPayload = "{\"field\": \"<script>alert(1)</script>\"}";
+
+        given()
+          .contentType("application/json")
+          .body(jsonPayload)
+          .when().post("/my-entity")
+          .then()
+             .log().all()
+             .statusCode(400);
+    }
 }
