@@ -3,9 +3,9 @@ package org.acme;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Example JPA entity defined as a Panache Entity.
@@ -31,6 +31,8 @@ import jakarta.validation.constraints.Size;
 public class MyEntity extends PanacheEntity {
     // SECURITY: Limit input length to prevent DoS via excessively large payloads
     @Size(max = 255)
+    // SECURITY: Prevent XSS by rejecting HTML/XML tags in input
+    @Pattern(regexp = "^[^<>]*$", message = "Input must not contain HTML or XML tags")
     @Column(length = 255)
     public String field;
 }
