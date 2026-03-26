@@ -53,3 +53,7 @@ I will add `@Cacheable` to `MyEntity.java`, with a comment explaining why it was
 ## 2024-05-25 - HTTP Compression
 **Learning:** Quarkus does not enable HTTP response compression by default. Text-based payloads like JSON from REST endpoints can be compressed to save significant network bandwidth.
 **Action:** Add `quarkus.http.enable-compression=true` to `application.properties` to easily compress large responses and improve overall network delivery time without architecture changes.
+
+## 2024-05-26 - JDBC Batching
+**Learning:** Hibernate ORM does not enable JDBC batching by default, which can lead to poor performance when inserting or updating multiple entities (like via Panache REST Data endpoints).
+**Action:** Configure `quarkus.hibernate-orm.jdbc.statement-batch-size` to allow Hibernate to group multiple SQL statements into a single batch, reducing database roundtrips.
