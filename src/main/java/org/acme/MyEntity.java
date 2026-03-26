@@ -5,6 +5,7 @@ import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -30,7 +31,9 @@ import jakarta.validation.constraints.Size;
 @Cacheable // ⚡ Bolt: Enables Hibernate second-level cache to reduce database reads for frequent queries
 public class MyEntity extends PanacheEntity {
     // SECURITY: Limit input length to prevent DoS via excessively large payloads
+    // SECURITY: Prevent Stored XSS and HTML Injection by restricting characters
     @Size(max = 255)
+    @Pattern(regexp = "^[^<>]*$", message = "Input must not contain HTML tags or script injection attempts")
     @Column(length = 255)
     public String field;
 }
