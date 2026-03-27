@@ -22,4 +22,18 @@ class MyEntityResourceTest {
              .log().all()
              .statusCode(400);
     }
+
+    @Test
+    void testCreateEntityWithMalformedPayloadDoesNotLeakInternals() {
+        String jsonPayload = "{\"field\": \"test\",}";
+
+        given()
+          .contentType("application/json")
+          .body(jsonPayload)
+          .when().post("/my-entity")
+          .then()
+             .log().all()
+             .statusCode(400)
+             .body(containsString("\"error\": \"Malformed payload\""));
+    }
 }
