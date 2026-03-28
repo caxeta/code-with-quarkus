@@ -20,7 +20,8 @@ class MyEntityResourceTest {
           .when().post("/my-entity")
           .then()
              .log().all()
-             .statusCode(400);
+             .statusCode(400)
+             .body(containsString("\"error\": \"Validation failed\""));
     }
 
     @Test
