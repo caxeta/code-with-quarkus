@@ -16,3 +16,8 @@
 **Vulnerability:** Sending malformed JSON payloads (like trailing commas) to RESTEasy endpoints caused a `ProcessingException` (wrapping a `JsonbException`) which leaked internal Java stack traces, class names, and JSONB parsing implementation details to the client in an HTML 400 Bad Request response. This is an Information Exposure (CWE-200) risk.
 **Learning:** RESTEasy's default error handling for payload parsing failures is verbose and leaks server internals, which violates secure error handling principles.
 **Prevention:** Always register custom `ExceptionMapper` implementations for framework-level exceptions like `ProcessingException` and `JsonbException` to intercept them and return generic, sanitized error messages (e.g., "Malformed payload") instead of leaking the underlying exceptions.
+
+## 2026-03-28 - Secure Validation Exception Handling
+**Vulnerability:** Information leakage via default `ConstraintViolationException` handling.
+**Learning:** In Quarkus RESTEasy, default validation constraint violations throw a `ConstraintViolationException` which inadvertently leaks internal Java parameter paths (e.g. `add.entity.field`), the constraint type, and echoes the exact unsanitized user input in the HTTP response body.
+**Prevention:** Register a custom `ExceptionMapper<ConstraintViolationException>` to catch these validation failures and return a sanitized, generic 400 Bad Request error to prevent leaking schema details or echoing malicious payloads.
