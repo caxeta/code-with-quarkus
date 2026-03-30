@@ -21,3 +21,8 @@
 **Vulnerability:** Information leakage via default `ConstraintViolationException` handling.
 **Learning:** In Quarkus RESTEasy, default validation constraint violations throw a `ConstraintViolationException` which inadvertently leaks internal Java parameter paths (e.g. `add.entity.field`), the constraint type, and echoes the exact unsanitized user input in the HTTP response body.
 **Prevention:** Register a custom `ExceptionMapper<ConstraintViolationException>` to catch these validation failures and return a sanitized, generic 400 Bad Request error to prevent leaking schema details or echoing malicious payloads.
+
+## 2024-05-24 - DoS Mitigation in Quarkus
+**Vulnerability:** Missing timeout and body size limits in HTTP server, leaving application vulnerable to Slowloris and resource exhaustion attacks.
+**Learning:** Quarkus HTTP server does not enforce strict limits on read timeouts and request body sizes by default.
+**Prevention:** Always configure `quarkus.http.read-timeout` and `quarkus.http.limits.max-body-size` in `application.properties` to prevent DoS attacks.
