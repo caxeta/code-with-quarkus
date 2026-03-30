@@ -8,6 +8,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Example JPA entity defined as a Panache Entity.
@@ -37,6 +38,8 @@ public class MyEntity extends PanacheEntity {
     // SECURITY: Limit input length to prevent DoS via excessively large payloads
     // SECURITY: Prevent Stored XSS and HTML Injection by restricting characters
     @Size(max = 255)
+    // SECURITY: Block special characters to prevent XSS/injection payloads
+    @Pattern(regexp = "^[A-Za-z0-9 _-]*$", message = "Input contains invalid characters")
     @Pattern(regexp = "^[^<>]*$", message = "Input must not contain HTML tags or script injection attempts")
     @Column(length = 255)
     public String field;
