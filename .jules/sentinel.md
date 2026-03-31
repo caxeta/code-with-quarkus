@@ -21,3 +21,8 @@
 **Vulnerability:** Information leakage via default `ConstraintViolationException` handling.
 **Learning:** In Quarkus RESTEasy, default validation constraint violations throw a `ConstraintViolationException` which inadvertently leaks internal Java parameter paths (e.g. `add.entity.field`), the constraint type, and echoes the exact unsanitized user input in the HTTP response body.
 **Prevention:** Register a custom `ExceptionMapper<ConstraintViolationException>` to catch these validation failures and return a sanitized, generic 400 Bad Request error to prevent leaking schema details or echoing malicious payloads.
+
+## 2026-03-31 - Information Exposure in RESTEasy via Unhandled Exceptions
+**Vulnerability:** The application leaked stack traces when an unhandled `java.lang.Exception` or `java.lang.RuntimeException` occurred. This is an Information Exposure (CWE-200) risk.
+**Learning:** RESTEasy's default error handling for unhandled exceptions is verbose and leaks server internals, violating secure error handling principles.
+**Prevention:** Always register a custom `ExceptionMapper<Exception>` to intercept generic unhandled exceptions and return generic, sanitized error messages (e.g., "Internal Server Error") instead of leaking underlying exceptions.
