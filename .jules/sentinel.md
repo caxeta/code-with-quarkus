@@ -26,3 +26,8 @@
 **Vulnerability:** The application leaked stack traces when an unhandled `java.lang.Exception` or `java.lang.RuntimeException` occurred. This is an Information Exposure (CWE-200) risk.
 **Learning:** RESTEasy's default error handling for unhandled exceptions is verbose and leaks server internals, violating secure error handling principles.
 **Prevention:** Always register a custom `ExceptionMapper<Exception>` to intercept generic unhandled exceptions and return generic, sanitized error messages (e.g., "Internal Server Error") instead of leaking underlying exceptions.
+
+## 2026-04-01 - Missing Cache-Control Headers for API Responses
+**Vulnerability:** API endpoints didn't define default `Cache-Control` headers. This could lead to sensitive data (such as API responses containing user information or validation errors) being stored in browser caches, proxies, or intermediate nodes, increasing the risk of unauthorized access.
+**Learning:** In Quarkus RESTEasy, responses don't include cache prevention headers by default unless explicitly configured.
+**Prevention:** Always implement a `ContainerResponseFilter` to add `Cache-Control: no-store, no-cache, must-revalidate, max-age=0`, `Pragma: no-cache`, and `Expires: 0` headers to all responses by default. This ensures that only explicitly annotated endpoints (e.g., using `@Cache(maxAge = ...)`) are cached.
