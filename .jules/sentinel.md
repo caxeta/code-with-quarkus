@@ -31,3 +31,8 @@
 **Vulnerability:** API endpoints didn't define default `Cache-Control` headers. This could lead to sensitive data (such as API responses containing user information or validation errors) being stored in browser caches, proxies, or intermediate nodes, increasing the risk of unauthorized access.
 **Learning:** In Quarkus RESTEasy, responses don't include cache prevention headers by default unless explicitly configured.
 **Prevention:** Always implement a `ContainerResponseFilter` to add `Cache-Control: no-store, no-cache, must-revalidate, max-age=0`, `Pragma: no-cache`, and `Expires: 0` headers to all responses by default. This ensures that only explicitly annotated endpoints (e.g., using `@Cache(maxAge = ...)`) are cached.
+
+## 2024-04-03 - Prevent Global Exception Handler from Hiding 404 Not Found
+**Vulnerability:** The `GlobalExceptionMapper` for `Exception` was intercepting JAX-RS `NotFoundException` (thrown when hitting an invalid endpoint). This mapped standard 404s to generic 500s and logged the full stack trace.
+**Learning:** In Quarkus/RESTEasy, global exception mappers can inadvertently catch framework-level HTTP exceptions if specific exception mappers aren't defined. This can lead to info leakage (stack traces in logs) and DoS vectors (log flooding from simple bad requests).
+**Prevention:** Always register a specific `ExceptionMapper<NotFoundException>` when a broad `ExceptionMapper<Exception>` is in place to preserve standard HTTP semantics and prevent log flooding.
