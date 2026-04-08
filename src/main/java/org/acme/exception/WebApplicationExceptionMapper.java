@@ -29,12 +29,6 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
 
         return Response.fromResponse(originalResponse)
                 .entity("{\"error\": \"" + message + "\"}")
-        // SECURITY: Ensure WebApplicationExceptions (like 405 Not Allowed, 401 Unauthorized)
-        // are not swallowed by GlobalExceptionMapper. Use Response.fromResponse to preserve
-        // critical original HTTP headers (e.g. 'Allow' or 'WWW-Authenticate').
-        String error = exception.getResponse().getStatusInfo().getReasonPhrase();
-        return Response.fromResponse(exception.getResponse())
-                .entity("{\"error\": \"" + error + "\"}")
                 .type("application/json")
                 .build();
     }
