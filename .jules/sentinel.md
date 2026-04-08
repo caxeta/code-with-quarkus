@@ -36,3 +36,8 @@
 **Vulnerability:** A `GlobalExceptionMapper` catching generic `java.lang.Exception` was inadvertently intercepting `jakarta.ws.rs.NotFoundException` (which extends `RuntimeException`). This caused invalid URLs to return a `500 Internal Server Error` instead of a `404 Not Found`, while additionally filling logs with false-positive stack traces for simple non-existent paths.
 **Learning:** In Quarkus RESTEasy, global exception mappers can easily shadow standard HTTP error semantics if not properly prioritized or if specific framework exceptions are not handled separately.
 **Prevention:** Always register specific `ExceptionMapper` implementations (like `ExceptionMapper<NotFoundException>`) for standard framework exceptions like `NotFoundException` to intercept them and return the appropriate HTTP status codes and sanitized responses before a catch-all mapper is invoked.
+
+## 2026-04-08 - Sanitize WebApplicationException responses while preserving original headers
+**Vulnerability:** Information Exposure (CWE-200) via `WebApplicationException` framework errors (e.g. leaking `RESTEASY003650: No resource method found for POST` on 405 responses).
+**Learning:** Overwriting response objects entirely in `ExceptionMapper<WebApplicationException>` can strip original HTTP headers provided by the framework. For example, a standard 405 response must include an `Allow` header; replacing the response natively removes it.
+**Prevention:** Use `Response.fromResponse(exception.getResponse())` to build the generic response body so critical standard HTTP headers (like `Allow`) are retained while the internal implementation log message is safely masked.
