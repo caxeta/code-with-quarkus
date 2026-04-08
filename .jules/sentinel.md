@@ -37,6 +37,10 @@
 **Learning:** In Quarkus RESTEasy, global exception mappers can easily shadow standard HTTP error semantics if not properly prioritized or if specific framework exceptions are not handled separately.
 **Prevention:** Always register specific `ExceptionMapper` implementations (like `ExceptionMapper<NotFoundException>`) for standard framework exceptions like `NotFoundException` to intercept them and return the appropriate HTTP status codes and sanitized responses before a catch-all mapper is invoked.
 
+## 2026-04-06 - WebApplicationException Mapping
+**Vulnerability:** Global `ExceptionMapper<Exception>` was inadvertently intercepting standard HTTP exceptions (like `WebApplicationException` for 405 Method Not Allowed) and converting them into 500 Internal Server Errors while stripping out critical headers (like `Allow`).
+**Learning:** In Quarkus RESTEasy, standard HTTP error responses built by the framework must be explicitly preserved if a generic catch-all mapper is present. Stripping headers like `Allow` breaks HTTP semantics and can hinder security tooling/scanners that rely on these standards.
+**Prevention:** Always implement a specific `ExceptionMapper<WebApplicationException>` when using a generic `ExceptionMapper<Exception>`. Crucially, use `Response.fromResponse(exception.getResponse())` to reconstruct the response, ensuring that all original headers injected by the framework are preserved.
 ## 2026-04-05 - WebApplicationException intercepted by GlobalExceptionMapper
 **Vulnerability:** A generic `GlobalExceptionMapper<Exception>` was inadvertently intercepting standard JAX-RS/RESTEasy exceptions like `WebApplicationException` (e.g., 405 Method Not Allowed), returning a 500 Internal Server Error instead, and stripping critical HTTP headers such as `Allow`.
 **Learning:** In Quarkus RESTEasy, a global exception mapper for `java.lang.Exception` catches everything not explicitly mapped. When it intercepts a `WebApplicationException` that has an associated response (like 405 Method Not Allowed), it creates a completely new response, effectively stripping required protocol headers.
