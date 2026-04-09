@@ -61,3 +61,6 @@ I will add `@Cacheable` to `MyEntity.java`, with a comment explaining why it was
 ## 2026-04-03 - Hibernate Batch Fetching
 **Learning:** By default, Hibernate ORM may suffer from the N+1 query problem when fetching collections or uninitialized associations, executing a separate query for each entity's relations.
 **Action:** Configure `quarkus.hibernate-orm.fetch.batch-size` in `application.properties` to allow Hibernate to fetch associated entities in batches (e.g., 50 at a time), significantly reducing the number of database queries during list operations.
+## 2026-04-09 - Hibernate Validator Fail-Fast
+**Learning:** Hibernate Validator (which is used in Quarkus) by default evaluates all constraints on an object before returning validation errors. For large objects or malicious payloads designed to cause heavy validation, this wastes CPU cycles.
+**Action:** Configure `quarkus.hibernate-validator.fail-fast=true` in `application.properties` to tell Hibernate Validator to stop validation and throw an exception immediately upon encountering the first validation error.

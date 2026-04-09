@@ -1,0 +1,11 @@
+--- src/main/java/org/acme/MyEntity.java
++++ src/main/java/org/acme/MyEntity.java
+@@ -38,7 +38,7 @@
+     @Size(max = 255)
+     // SECURITY: Block special characters to prevent XSS/injection payloads
++    // ⚡ Bolt: Removed redundant regex check for HTML tags since the primary alphanumeric pattern already excludes '<' and '>'
+     @Pattern(regexp = "^[A-Za-z0-9 _-]*$", message = "Input contains invalid characters")
+-    @Pattern(regexp = "^[^<>]*$", message = "Input must not contain HTML tags or script injection attempts")
+     @Column(length = 255)
+     public String field;
+ }
