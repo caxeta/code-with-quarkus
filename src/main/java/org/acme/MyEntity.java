@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
+import org.hibernate.envers.Audited;
 
 /**
  * Example JPA entity defined as a Panache Entity.
@@ -30,6 +31,7 @@ import jakarta.validation.constraints.Pattern;
  * }
  */
 @Entity
+@Audited
 @Cacheable // ⚡ Bolt: Enables Hibernate second-level cache to reduce database reads for frequent queries
 @Table(indexes = {
     @Index(name = "idx_myentity_field", columnList = "field") // ⚡ Bolt: Add database index on frequently queried field to speed up search lookups
