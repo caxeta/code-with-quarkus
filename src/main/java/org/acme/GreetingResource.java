@@ -11,7 +11,7 @@ public class GreetingResource {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Cache(maxAge = 3600) // ⚡ Bolt: Cache expensive API call results using HTTP Cache-Control header
+    @Cache(maxAge = 3600) // ⚡ Bolt: Add HTTP Cache-Control header to cache static responses
     public String hello() {
         return "Hello RESTEasy";
     }

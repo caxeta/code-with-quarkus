@@ -58,6 +58,6 @@ I will add `@Cacheable` to `MyEntity.java`, with a comment explaining why it was
 **Learning:** Hibernate ORM does not enable JDBC batching by default, which can lead to poor performance when inserting or updating multiple entities (like via Panache REST Data endpoints).
 **Action:** Configure `quarkus.hibernate-orm.jdbc.statement-batch-size` to allow Hibernate to group multiple SQL statements into a single batch, reducing database roundtrips.
 
-## 2026-03-27 - Caching API calls with RESTEasy in Quarkus
-**Learning:** By applying the `@Cache` annotation from `org.jboss.resteasy.annotations.cache.Cache` on RESTEasy endpoint methods, Quarkus automatically adds a `Cache-Control` header to the response, allowing clients and intermediary caches to cache the response. This saves the server from unnecessarily re-processing identical API calls within the cache validity period.
-**Action:** Use `@Cache` in RESTEasy for relatively static endpoints to reduce latency and server load via HTTP caching.
+## 2026-04-03 - Hibernate Batch Fetching
+**Learning:** By default, Hibernate ORM may suffer from the N+1 query problem when fetching collections or uninitialized associations, executing a separate query for each entity's relations.
+**Action:** Configure `quarkus.hibernate-orm.fetch.batch-size` in `application.properties` to allow Hibernate to fetch associated entities in batches (e.g., 50 at a time), significantly reducing the number of database queries during list operations.
