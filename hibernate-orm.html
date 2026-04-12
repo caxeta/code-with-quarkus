@@ -39,8 +39,8 @@
   form-action 'none';
   font-src 'self' https://use.fontawesome.com https://fonts.gstatic.com;" />
 
-  <script id="adobe_dtm" src="https://www.redhat.com/dtm.js" type="text/javascript"></script>
-  <script src="/assets/javascript/highlight.pack.js" type="text/javascript"></script>
+  <script id="adobe_dtm" src="https://www.redhat.com/dtm.js" type="text/javascript" defer></script> <!-- ⚡ Bolt: Defer non-critical scripts to avoid blocking HTML parser -->
+  <script src="/assets/javascript/highlight.pack.js" type="text/javascript" defer></script> <!-- ⚡ Bolt: Defer non-critical scripts to avoid blocking HTML parser -->
   <META HTTP-EQUIV='X-XSS-Protection' CONTENT="1; mode=block">
   <META HTTP-EQUIV='X-Content-Type-Options' CONTENT="nosniff">
   <meta charset="utf-8">
@@ -88,7 +88,7 @@
   <div class="nav-wrapper">
   <div class="grid-wrapper">
     <div class="width-12-12">
-      <input type="checkbox" id="checkbox" />
+      <input type="checkbox" id="checkbox" aria-label="Toggle navigation menu" />
       <nav id="main-nav" class="main-nav">
         <div class="logo-wrapper">
            <a href="/"><img src="/assets/images/quarkus_logo_horizontal_rgb_600px_reverse.png" class="project-logo" title="Quarkus"></a>
@@ -167,7 +167,7 @@
           </ul>
       </li>
       <li>
-        <span href="#" class="modeswitcher" id='theme-toggle'><i class="fas fa-sun"></i><i class="fas fa-moon"></i><i class="fas fa-cog"></i></span>
+        <span href="#" class="modeswitcher" id='theme-toggle' role="button" aria-label="Toggle dark mode" tabindex="0"><i class="fas fa-sun"></i><i class="fas fa-moon"></i><i class="fas fa-cog"></i></span>
       </li>
     </ul>
       </nav>
@@ -3455,7 +3455,7 @@ public interface MyRepository {
 <h2 id="configuration-reference"><a class="anchor" href="#configuration-reference"></a>Configuration Reference for Hibernate ORM</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-lock" title="Fixed at build time"></i></span> Configuration property fixed at build time - All other configuration properties are overridable at runtime <input type="search" id="config-search-0" placeholder="FILTER CONFIGURATION" disabled></p>
+<p><span class="icon"><i class="fa fa-lock" title="Fixed at build time"></i></span> Configuration property fixed at build time - All other configuration properties are overridable at runtime <input type="search" aria-label="Filter configuration properties" id="config-search-0" placeholder="FILTER CONFIGURATION" disabled></p>
 </div>
 <table class="tableblock frame-all grid-all stretch configuration-reference searchable configuration-reference-all-rows">
 <colgroup>
@@ -5919,7 +5919,7 @@ See the <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
   <div class="content project-footer">
   <div class="footer-section">
     <div class="logo-wrapper">
-      <a href="/"><img src="/assets/images/quarkus_logo_horizontal_rgb_reverse.svg" class="project-logo" title="Quarkus"></a>
+      <a href="/"><img src="/assets/images/quarkus_logo_horizontal_rgb_reverse.svg" class="project-logo" title="Quarkus" loading="lazy"> <!-- ⚡ Bolt: Lazy load images below the fold --></a>
     </div>
   </div>
   <div class="grid-wrapper">
@@ -6121,7 +6121,7 @@ See the <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
   <div class="content cf-footer">
   <div class="flexcontainer">
     <div class="cf-logo">
-      <a class="cf-logo" href="https://www.commonhaus.org/" target="_blank"><img src="https://raw.githubusercontent.com/commonhaus/artwork/main/foundation/brand/svg/CF_logo_horizontal_single_reverse.svg"/></a>
+      <a class="cf-logo" href="https://www.commonhaus.org/" target="_blank"><img src="https://raw.githubusercontent.com/commonhaus/artwork/main/foundation/brand/svg/CF_logo_horizontal_single_reverse.svg" loading="lazy"/> <!-- ⚡ Bolt: Lazy load images below the fold --></a>
     </div>
     <div class="license">
       Copyright © Quarkus. All rights reserved. For details on our trademarks, please visit our <a href="https://www.commonhaus.org/policies/trademark-policy/">Trademark Policy</a> and <a href="https://www.commonhaus.org/trademarks/">Trademark List</a>. Trademarks of third parties are owned by their respective holders and their mention here does not suggest any endorsement or association.
