@@ -10,6 +10,19 @@ import static org.hamcrest.Matchers.containsString;
 class MyEntityResourceTest {
 
     @Test
+    void testCreateEntityWithXSSPayload() {
+        String xssPayload = "{\"field\": \"<script>alert(1)</script>\"}";
+
+        given()
+          .contentType("application/json")
+          .body(xssPayload)
+          .when().post("/my-entity")
+          .then()
+             .log().all()
+             .statusCode(400);
+    }
+
+    @Test
     void testCreateEntityWithLargePayload() {
         String largeString = "a".repeat(300);
         String jsonPayload = "{\"field\": \"" + largeString + "\"}";
@@ -36,5 +49,18 @@ class MyEntityResourceTest {
              .log().all()
              .statusCode(400)
              .body(containsString("\"error\": \"Malformed payload\""));
+    }
+
+    @Test
+    void testCreateEntityWithMaliciousPayload() {
+        String jsonPayload = "{\"field\": \"<script>alert(1)</script>\"}";
+
+        given()
+          .contentType("application/json")
+          .body(jsonPayload)
+          .when().post("/my-entity")
+          .then()
+             .log().all()
+             .statusCode(400);
     }
 }
