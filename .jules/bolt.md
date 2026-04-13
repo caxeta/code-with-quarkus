@@ -61,3 +61,6 @@ I will add `@Cacheable` to `MyEntity.java`, with a comment explaining why it was
 ## 2026-04-03 - Hibernate Batch Fetching
 **Learning:** By default, Hibernate ORM may suffer from the N+1 query problem when fetching collections or uninitialized associations, executing a separate query for each entity's relations.
 **Action:** Configure `quarkus.hibernate-orm.fetch.batch-size` in `application.properties` to allow Hibernate to fetch associated entities in batches (e.g., 50 at a time), significantly reducing the number of database queries during list operations.
+## 2026-04-13 - Caching CDI lookups in Envers RevisionListener
+**Learning:** In Quarkus (and general CDI), performing programmatic CDI lookups (e.g. `CDI.current().getBeanManager().resolve(...)`) is an expensive operation. When implemented inside an Envers `RevisionListener` (which is invoked for *every* database revision), this causes massive performance degradation under load.
+**Action:** Cache the `BeanManager` and `Bean` references in the `RevisionListener` instance to avoid the lookup penalty on every transaction, reducing revision overhead significantly.
