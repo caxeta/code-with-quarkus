@@ -9,16 +9,25 @@ import org.hibernate.envers.RevisionListener;
 
 public class CustomRevisionListener implements RevisionListener {
 
+    // ⚡ Bolt: Cache BeanManager and Bean to avoid expensive CDI lookups on every revision creation
+    private volatile BeanManager beanManager;
+    private volatile Bean<?> securityIdentityBean;
+
     @Override
     public void newRevision(Object revisionEntity) {
         CustomRevisionEntity customRevisionEntity = (CustomRevisionEntity) revisionEntity;
 
         try {
-            BeanManager beanManager = CDI.current().getBeanManager();
-            Bean<?> bean = beanManager.resolve(beanManager.getBeans(SecurityIdentity.class));
-            if (bean != null) {
-                CreationalContext<?> creationalContext = beanManager.createCreationalContext(bean);
-                SecurityIdentity securityIdentity = (SecurityIdentity) beanManager.getReference(bean, SecurityIdentity.class, creationalContext);
+            if (beanManager == null) {
+                beanManager = CDI.current().getBeanManager();
+            }
+            if (securityIdentityBean == null) {
+                securityIdentityBean = beanManager.resolve(beanManager.getBeans(SecurityIdentity.class));
+            }
+
+            if (securityIdentityBean != null) {
+                CreationalContext<?> creationalContext = beanManager.createCreationalContext(securityIdentityBean);
+                SecurityIdentity securityIdentity = (SecurityIdentity) beanManager.getReference(securityIdentityBean, SecurityIdentity.class, creationalContext);
 
                 if (securityIdentity != null && !securityIdentity.isAnonymous() && securityIdentity.getPrincipal() != null) {
                     customRevisionEntity.setUsername(securityIdentity.getPrincipal().getName());
