@@ -64,3 +64,7 @@ I will add `@Cacheable` to `MyEntity.java`, with a comment explaining why it was
 ## 2026-04-13 - Caching CDI lookups in Envers RevisionListener
 **Learning:** In Quarkus (and general CDI), performing programmatic CDI lookups (e.g. `CDI.current().getBeanManager().resolve(...)`) is an expensive operation. When implemented inside an Envers `RevisionListener` (which is invoked for *every* database revision), this causes massive performance degradation under load.
 **Action:** Cache the `BeanManager` and `Bean` references in the `RevisionListener` instance to avoid the lookup penalty on every transaction, reducing revision overhead significantly.
+
+## 2026-04-16 - Efficient CDI proxy caching in Envers
+**Learning:** While caching `BeanManager` and `Bean` references avoids CDI metadata lookup overhead in an Envers `RevisionListener`, calling `beanManager.createCreationalContext()` and `beanManager.getReference()` repeatedly per transaction remains a severe bottleneck. Since CDI proxies for request-scoped beans are thread-safe singletons that dynamically delegate to the active context, the proxy itself can be safely cached as a singleton.
+**Action:** Cache the resulting CDI proxy itself (e.g. `SecurityIdentity`) in a `volatile` field in the `RevisionListener` to completely eliminate CDI overhead during Hibernate entity auditing.

@@ -9,27 +9,25 @@ import org.hibernate.envers.RevisionListener;
 
 public class CustomRevisionListener implements RevisionListener {
 
-    // ⚡ Bolt: Cache BeanManager and Bean to avoid expensive CDI lookups on every revision creation
-    private volatile BeanManager beanManager;
-    private volatile Bean<?> securityIdentityBean;
+    // ⚡ Bolt: Cache the CDI proxy directly to avoid expensive CDI lookups and context creation on every revision
+    private volatile SecurityIdentity securityIdentity;
 
     @Override
     public void newRevision(Object revisionEntity) {
         CustomRevisionEntity customRevisionEntity = (CustomRevisionEntity) revisionEntity;
 
         try {
-            if (beanManager == null) {
-                beanManager = CDI.current().getBeanManager();
-            }
-            if (securityIdentityBean == null) {
-                securityIdentityBean = beanManager.resolve(beanManager.getBeans(SecurityIdentity.class));
+            if (securityIdentity == null) {
+                BeanManager beanManager = CDI.current().getBeanManager();
+                Bean<?> securityIdentityBean = beanManager.resolve(beanManager.getBeans(SecurityIdentity.class));
+                if (securityIdentityBean != null) {
+                    CreationalContext<?> creationalContext = beanManager.createCreationalContext(securityIdentityBean);
+                    securityIdentity = (SecurityIdentity) beanManager.getReference(securityIdentityBean, SecurityIdentity.class, creationalContext);
+                }
             }
 
-            if (securityIdentityBean != null) {
-                CreationalContext<?> creationalContext = beanManager.createCreationalContext(securityIdentityBean);
-                SecurityIdentity securityIdentity = (SecurityIdentity) beanManager.getReference(securityIdentityBean, SecurityIdentity.class, creationalContext);
-
-                if (securityIdentity != null && !securityIdentity.isAnonymous() && securityIdentity.getPrincipal() != null) {
+            if (securityIdentity != null) {
+                if (!securityIdentity.isAnonymous() && securityIdentity.getPrincipal() != null) {
                     customRevisionEntity.setUsername(securityIdentity.getPrincipal().getName());
                 } else {
                     customRevisionEntity.setUsername("anonymous");
