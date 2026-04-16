@@ -49,3 +49,8 @@
 **Vulnerability:** A `GlobalExceptionMapper` catching `java.lang.Exception` was inadvertently intercepting `jakarta.ws.rs.WebApplicationException` and subclasses (like `NotAllowedException` and `NotAuthorizedException`). This converted correct framework-generated HTTP status codes (like 405 or 401) to generic `500 Internal Server Error` responses, whilst simultaneously stripping critical response headers (like `Allow` or `WWW-Authenticate`) added by RESTEasy, which violates proper secure HTTP semantics.
 **Learning:** In Quarkus RESTEasy, global catch-all exception mappers must not inadvertently mask framework exceptions that rely on specific status codes and headers for proper client-server communication and security protocols.
 **Prevention:** Always register a specific `ExceptionMapper<WebApplicationException>` to intercept web application exceptions and correctly build the response from the underlying exception object using `Response.fromResponse(exception.getResponse())` to preserve status codes and essential headers.
+
+## 2026-04-16 - Information Exposure via Unhandled Errors
+**Vulnerability:** A `GlobalExceptionMapper` catching `java.lang.Exception` was insufficient because it missed `java.lang.Error` instances (like `OutOfMemoryError`), leading to leaked stack traces via the framework's default error handler. This is an Information Exposure (CWE-200) risk.
+**Learning:** In Quarkus RESTEasy, an `ExceptionMapper<Exception>` does not catch `java.lang.Error`.
+**Prevention:** Always implement a custom `ExceptionMapper<Throwable>` to properly catch all throwables, including errors, and return a sanitized response to prevent internal details from leaking.
