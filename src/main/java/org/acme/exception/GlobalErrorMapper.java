@@ -6,14 +6,14 @@ import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
 
 @Provider
-public class GlobalExceptionMapper implements ExceptionMapper<Exception> {
+public class GlobalErrorMapper implements ExceptionMapper<Throwable> {
 
-    private static final Logger LOG = Logger.getLogger(GlobalExceptionMapper.class);
+    private static final Logger LOG = Logger.getLogger(GlobalErrorMapper.class);
 
     @Override
-    public Response toResponse(Exception exception) {
+    public Response toResponse(Throwable exception) {
         // SECURITY: Log the error internally for debugging, but don't leak stack traces to the client
-        LOG.error("Unhandled exception caught by GlobalExceptionMapper", exception);
+        LOG.error("Unhandled Throwable caught by GlobalErrorMapper", exception);
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity("{\"error\": \"Internal Server Error\"}")
