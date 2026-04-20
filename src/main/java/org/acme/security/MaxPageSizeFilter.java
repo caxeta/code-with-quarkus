@@ -16,10 +16,11 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
         if (sizeParam != null) {
             try {
                 int size = Integer.parseInt(sizeParam);
-                if (size > MAX_SIZE) {
+                if (size <= 0 || size > MAX_SIZE) {
                     // SECURITY: Prevent DoS via resource exhaustion by limiting the maximum number of items returned in a single page
+                    // SECURITY: Also enforce a minimum size limit to prevent backend errors from zero or negative limits
                     requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
-                            .entity("{\"error\": \"Page size exceeds the maximum allowed limit of " + MAX_SIZE + "\"}")
+                            .entity("{\"error\": \"Page size must be between 1 and " + MAX_SIZE + "\"}")
                             .type("application/json")
                             .build());
                 }
