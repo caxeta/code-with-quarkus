@@ -73,3 +73,8 @@
 **Vulnerability:** A `ContainerRequestFilter` designed to cap maximum page sizes (`MaxPageSizeFilter`) only checked `if (size > MAX_SIZE)`. It failed to validate lower bounds (`size <= 0`), potentially allowing clients to request negative page sizes leading to unexpected behavior.
 **Learning:** Security controls based on integer bounds must always check both the upper AND lower limits, as negative inputs are a common avenue for bypasses or application errors.
 **Prevention:** Always validate both the lower and upper bounds of integer inputs, especially when used for resource allocation or database pagination.
+
+## 2026-04-21 - Missing Negative Value Checks in Pagination Page Parameter
+**Vulnerability:** A `ContainerRequestFilter` designed to cap maximum page sizes (`MaxPageSizeFilter`) validated the `size` query parameter, but failed to validate the `page` query parameter. This allowed clients to request negative page sizes (`?page=-1`), potentially leading to unexpected behavior or unhandled exceptions when querying the database.
+**Learning:** Security controls related to pagination and limits must check all relevant query parameters (such as both `size` and `page`). Failure to check lower bounds (like `< 0`) allows negative inputs which can bypass checks or cause backend errors.
+**Prevention:** Always validate all pagination parameters, ensuring both `size` and `page` parameters have appropriate minimum limits (e.g., `page >= 0` and `size > 0`).
