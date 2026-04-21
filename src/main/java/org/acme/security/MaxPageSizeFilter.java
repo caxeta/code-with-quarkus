@@ -22,10 +22,30 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
                             .entity("{\"error\": \"Page size must be between 1 and " + MAX_SIZE + "\"}")
                             .type("application/json")
                             .build());
+                    return;
                 }
             } catch (NumberFormatException e) {
                 requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
                         .entity("{\"error\": \"Invalid size parameter\"}")
+                        .type("application/json")
+                        .build());
+                return;
+            }
+        }
+
+        String pageParam = requestContext.getUriInfo().getQueryParameters().getFirst("page");
+        if (pageParam != null) {
+            try {
+                int page = Integer.parseInt(pageParam);
+                if (page < 0) {
+                    requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
+                            .entity("{\"error\": \"Page index must be >= 0\"}")
+                            .type("application/json")
+                            .build());
+                }
+            } catch (NumberFormatException e) {
+                requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\": \"Invalid page parameter\"}")
                         .type("application/json")
                         .build());
             }
