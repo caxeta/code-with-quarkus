@@ -78,3 +78,8 @@
 **Vulnerability:** A `ContainerRequestFilter` designed to cap maximum page sizes (`MaxPageSizeFilter`) validated the `size` query parameter, but failed to validate the `page` query parameter. This allowed clients to request negative page sizes (`?page=-1`), potentially leading to unexpected behavior or unhandled exceptions when querying the database.
 **Learning:** Security controls related to pagination and limits must check all relevant query parameters (such as both `size` and `page`). Failure to check lower bounds (like `< 0`) allows negative inputs which can bypass checks or cause backend errors.
 **Prevention:** Always validate all pagination parameters, ensuring both `size` and `page` parameters have appropriate minimum limits (e.g., `page >= 0` and `size > 0`).
+
+## 2026-04-22 - System-wide DoS via IP-based Rate Limiting behind Proxy
+**Vulnerability:** IP-based rate limiting using `request.remoteAddress().host()` was active without `quarkus.http.proxy.proxy-address-forwarding=true`. When running behind a reverse proxy, all requests appear to originate from the proxy's IP. This means that a few excessive requests from any user could trigger the rate limit, blocking access for all users simultaneously (a system-wide DoS).
+**Learning:** IP-based security controls rely on knowing the true origin IP. Frameworks must be explicitly configured to parse `X-Forwarded-For` or similar headers when deployed behind proxies.
+**Prevention:** Ensure `quarkus.http.proxy.proxy-address-forwarding=true` is explicitly set in `application.properties` whenever using IP-based controls (like rate limiting) in an environment that may use reverse proxies.
