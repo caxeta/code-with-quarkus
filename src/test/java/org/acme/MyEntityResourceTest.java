@@ -1,6 +1,7 @@
 package org.acme;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -10,6 +11,7 @@ import static org.hamcrest.Matchers.containsString;
 class MyEntityResourceTest {
 
     @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
     void testCreateEntityWithXSSPayload() {
         String xssPayload = "{\"field\": \"<script>alert(1)</script>\"}";
 
@@ -23,6 +25,7 @@ class MyEntityResourceTest {
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
     void testCreateEntityWithLargePayload() {
         String largeString = "a".repeat(300);
         String jsonPayload = "{\"field\": \"" + largeString + "\"}";
@@ -38,6 +41,7 @@ class MyEntityResourceTest {
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
     void testCreateEntityWithMalformedPayloadDoesNotLeakInternals() {
         String jsonPayload = "{\"field\": \"test\",}";
 
@@ -52,6 +56,7 @@ class MyEntityResourceTest {
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
     void testCreateEntityWithMaliciousPayload() {
         String jsonPayload = "{\"field\": \"<script>alert(1)</script>\"}";
 

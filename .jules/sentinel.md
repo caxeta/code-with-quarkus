@@ -83,3 +83,8 @@
 **Vulnerability:** IP-based rate limiting using `request.remoteAddress().host()` was active without `quarkus.http.proxy.proxy-address-forwarding=true`. When running behind a reverse proxy, all requests appear to originate from the proxy's IP. This means that a few excessive requests from any user could trigger the rate limit, blocking access for all users simultaneously (a system-wide DoS).
 **Learning:** IP-based security controls rely on knowing the true origin IP. Frameworks must be explicitly configured to parse `X-Forwarded-For` or similar headers when deployed behind proxies.
 **Prevention:** Ensure `quarkus.http.proxy.proxy-address-forwarding=true` is explicitly set in `application.properties` whenever using IP-based controls (like rate limiting) in an environment that may use reverse proxies.
+
+## 2026-04-23 - Missing Authentication on Auto-Generated Endpoints
+**Vulnerability:** The application used `quarkus-hibernate-orm-rest-data-panache` to automatically generate REST CRUD endpoints for `MyEntity`. However, these endpoints were fully exposed without any authentication, allowing anonymous users to create, read, update, or delete entities.
+**Learning:** Frameworks that auto-generate endpoints prioritize rapid development and often expose them publicly by default. This creates a severe security risk if the developer assumes the endpoints are secure or internal-only.
+**Prevention:** Always explicitly apply role-based access control annotations (e.g., `@Authenticated`, `@RolesAllowed`) to the corresponding `PanacheEntityResource` interfaces to ensure generated endpoints are secured.
