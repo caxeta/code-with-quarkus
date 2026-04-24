@@ -37,9 +37,10 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
         if (pageParam != null) {
             try {
                 int page = Integer.parseInt(pageParam);
-                if (page < 0) {
+                if (page < 0 || page > 10000) {
+                    // SECURITY: Prevent DoS via deep pagination and limit database impact
                     requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
-                            .entity("{\"error\": \"Page index must be >= 0\"}")
+                            .entity("{\"error\": \"Page index must be between 0 and 10000\"}")
                             .type("application/json")
                             .build());
                 }
