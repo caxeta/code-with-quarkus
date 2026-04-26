@@ -1,8 +1,8 @@
 package org.acme;
 
 import io.quarkus.hibernate.orm.rest.data.panache.PanacheEntityResource;
-import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.RolesAllowed;
 
-@Authenticated
+@RolesAllowed("admin")
 public interface MyEntityResource extends PanacheEntityResource<MyEntity, Long> {
 }
