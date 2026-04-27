@@ -1,6 +1,8 @@
 package org.acme.security;
 
 import io.vertx.core.http.HttpServerRequest;
+import jakarta.annotation.Priority;
+import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.Context;
@@ -10,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Provider
+@Priority(Priorities.AUTHENTICATION - 100) // SECURITY: Execute rate limiting BEFORE authentication to prevent DoS via expensive auth hashing
 public class RateLimitFilter implements ContainerRequestFilter {
 
     private static final int MAX_REQUESTS = 100;
