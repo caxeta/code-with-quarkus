@@ -116,3 +116,8 @@
 **Vulnerability:** A `ContainerRequestFilter` used to validate query parameters (`SortInjectionFilter`) only checked the *first* occurrence of the parameter using `requestContext.getUriInfo().getQueryParameters().getFirst("sort")`. This meant an attacker could bypass the filter via HTTP Parameter Pollution (HPP) by supplying a valid parameter followed by a malicious one (e.g., `?sort=validField&sort=invalidField`). The underlying application logic might then process the unvalidated subsequent values.
 **Learning:** When validating query parameters for security, it is unsafe to only check the first value. Frameworks and libraries may process subsequent values, allowing attackers to sneak malicious payloads past initial filters.
 **Prevention:** Always retrieve and validate the full list of parameter values using `.get("paramName")` rather than `.getFirst("paramName")`, and iterate over all values to ensure none of them contain malicious payloads.
+
+## 2024-05-24 - HTTP Parameter Pollution in MaxPageSizeFilter
+**Vulnerability:** The `MaxPageSizeFilter` evaluated parameters using `.getFirst("size")` and `.getFirst("page")`. This left it vulnerable to HTTP Parameter Pollution bypasses where an attacker could provide multiple `size` or `page` parameters, tricking the security filter into validating the first (safe) one while the underlying application might consume a subsequent (malicious) one, potentially causing DoS.
+**Learning:** Security filters validating query string parameters must validate all occurrences of the parameters, not just the first one.
+**Prevention:** Use `.get("paramName")` to retrieve the list of all parameters with that name, and iterate over all occurrences to apply validation.
