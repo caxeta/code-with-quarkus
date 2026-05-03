@@ -1,3 +1,7 @@
+## 2026-05-03 - Prevent Log Injection in Request Filters and Exception Mappers
+**Vulnerability:** Log Injection (CWE-117) via unsanitized client IP addresses (from `X-Forwarded-For`) and exception messages.
+**Learning:** Even internal exception messages can contain unsanitized user inputs, and IP addresses should not be implicitly trusted when proxy address forwarding is enabled.
+**Prevention:** Explicitly strip newline characters (`[\r\n]`) from dynamic inputs before passing them to the logger.
 ## 2024-05-24 - Missing Security Headers in Quarkus App
 **Vulnerability:** The Quarkus application was missing standard security headers (X-Content-Type-Options, X-XSS-Protection, X-Frame-Options, Strict-Transport-Security), which left it vulnerable to various attacks like MIME sniffing, clickjacking, and XSS.
 **Learning:** In a Quarkus application, security headers aren't added by default. You need to explicitly configure them, usually in `src/main/resources/application.properties`.
