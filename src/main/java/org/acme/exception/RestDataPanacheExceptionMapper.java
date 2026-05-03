@@ -14,7 +14,10 @@ public class RestDataPanacheExceptionMapper implements ExceptionMapper<RestDataP
     @Override
     public Response toResponse(RestDataPanacheException exception) {
         // SECURITY: Do not leak stack traces or exception messages which might contain query structure
-        LOG.warn("Caught RestDataPanacheException: " + exception.getMessage());
+        // SECURITY: Prevent log injection by sanitizing the user input before logging
+        String message = exception.getMessage();
+        String sanitizedMessage = message != null ? message.replaceAll("[\r\n]", "") : "null";
+        LOG.warn("Caught RestDataPanacheException: " + sanitizedMessage);
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity("{\"error\": \"Invalid request parameters\"}")
                 .type("application/json")
