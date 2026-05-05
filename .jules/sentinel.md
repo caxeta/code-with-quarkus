@@ -131,3 +131,8 @@
 **Vulnerability:** Log Injection (CWE-117) via `request.remoteAddress().host()`. In Quarkus, with `quarkus.http.proxy.proxy-address-forwarding=true` enabled, `request.remoteAddress().host()` resolves based on the potentially user-controlled `X-Forwarded-For` header.
 **Learning:** If this header is not sanitized, malicious users could inject newlines into the IP address, writing fake log entries or spoofing system events.
 **Prevention:** Explicitly strip newline characters (e.g., using `replaceAll("[\r\n]", "")`) before passing the string to the logger.
+
+## 2026-05-05 - Log Injection via Exception Messages
+**Vulnerability:** Exception messages that include user input (like `RestDataPanacheException` when parsing invalid query strings) were logged directly without sanitization, leading to potential Log Injection (CWE-117) via newline characters.
+**Learning:** Even internal framework exception messages can contain unsanitized user input. If logged directly, they pose a log injection risk.
+**Prevention:** Always sanitize exception messages (e.g., using `replaceAll("[\r\n]", "")`) if they are known to echo user input before passing them to a logger.
