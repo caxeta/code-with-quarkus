@@ -136,3 +136,7 @@
 **Vulnerability:** Exception messages that include user input (like `RestDataPanacheException` when parsing invalid query strings) were logged directly without sanitization, leading to potential Log Injection (CWE-117) via newline characters.
 **Learning:** Even internal framework exception messages can contain unsanitized user input. If logged directly, they pose a log injection risk.
 **Prevention:** Always sanitize exception messages (e.g., using `replaceAll("[\r\n]", "")`) if they are known to echo user input before passing them to a logger.
+## 2026-06-08 - Fix unbounded cache memory leak in RateLimitFilter
+**Vulnerability:** The RateLimitFilter used an unconstrained ConcurrentHashMap to track client IPs, making it vulnerable to a memory exhaustion Denial of Service (DoS) attack if flooded with spoofed or distributed IPs.
+**Learning:** To prevent Denial of Service (DoS) attacks via memory exhaustion in custom rate limiting filters, avoid using unbounded collections like `ConcurrentHashMap` and instead implement a size-bounded cache (e.g., using Caffeine with `maximumSize`).
+**Prevention:** Implement strict size bounds on any memory caching mechanisms directly exposed to external, untrusted input.
