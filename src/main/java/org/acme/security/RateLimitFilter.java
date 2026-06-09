@@ -35,6 +35,11 @@ public class RateLimitFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) {
         String clientIp = request.remoteAddress().host();
 
+        if (count > MAX_REQUESTS) {
+            // SECURITY: Prevent log injection by sanitizing the IP address, which may be user-provided (e.g. via X-Forwarded-For)
+            String sanitizedIp = clientIp != null ? clientIp.replaceAll("[\r\n]", "") : "unknown";
+            // SECURITY: Log abusive IPs for auditing
+            LOG.warn("Rate limit exceeded for IP: " + sanitizedIp);
         int currentCount = counts.get(clientIp, k -> new AtomicInteger(0)).incrementAndGet();
 
         if (currentCount > MAX_REQUESTS) {

@@ -14,6 +14,9 @@ public class RestDataPanacheExceptionMapper implements ExceptionMapper<RestDataP
     @Override
     public Response toResponse(RestDataPanacheException exception) {
         // SECURITY: Do not leak stack traces or exception messages which might contain query structure
+        // SECURITY: Prevent log injection by sanitizing the user input before logging
+        String message = exception.getMessage();
+        String sanitizedMessage = message != null ? message.replaceAll("[\r\n]", "") : "null";
         // SECURITY: Prevent Log Injection by stripping newlines from the exception message, which may contain user input
         String sanitizedMessage = exception.getMessage() != null ? exception.getMessage().replaceAll("[\r\n]", "") : "null";
         LOG.warn("Caught RestDataPanacheException: " + sanitizedMessage);
