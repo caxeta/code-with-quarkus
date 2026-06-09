@@ -1,5 +1,7 @@
 package org.acme.security;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.vertx.core.http.HttpServerRequest;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
@@ -9,8 +11,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,7 +22,7 @@ public class RateLimitFilter implements ContainerRequestFilter {
 
     private static final int MAX_REQUESTS = 100;
 
-    // SECURITY: Use a size-bounded cache (Caffeine) instead of an unbounded ConcurrentHashMap to prevent memory exhaustion DoS
+    // Size-bounded cache to prevent memory exhaustion DoS attacks
     private final Cache<String, AtomicInteger> counts = Caffeine.newBuilder()
             .maximumSize(10000)
             .expireAfterWrite(1, TimeUnit.MINUTES)
@@ -35,8 +35,7 @@ public class RateLimitFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) {
         String clientIp = request.remoteAddress().host();
 
-        AtomicInteger count = counts.get(clientIp, k -> new AtomicInteger(0));
-        int currentCount = count.incrementAndGet();
+        int currentCount = counts.get(clientIp, k -> new AtomicInteger(0)).incrementAndGet();
 
         if (currentCount > MAX_REQUESTS) {
             // SECURITY: Log abusive IPs for auditing. Prevent Log Injection by stripping newlines.
