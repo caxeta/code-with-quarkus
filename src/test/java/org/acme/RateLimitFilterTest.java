@@ -4,29 +4,33 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
-class RateLimitFilterTest {
+public class RateLimitFilterTest {
 
     @Test
-    void testRateLimitEnforcement() {
-        String testIp = "192.168.1.100";
-        String endpoint = "/hello";
+    public void testRateLimiting() {
+        // Use a unique IP for this test to avoid interfering with other tests
+        // since the RateLimitFilter uses the client IP and is a singleton across tests.
+        String uniqueIp = "192.168.1.100";
 
-        // 1. Send MAX_REQUESTS (100)
+        // The limit is 100 requests per minute.
+        // We will send 100 successful requests.
         for (int i = 0; i < 100; i++) {
             given()
-                .header("X-Forwarded-For", testIp)
-                .when().get(endpoint)
-                .then()
-                .statusCode(200);
+              .header("X-Forwarded-For", uniqueIp)
+              .when().get("/hello")
+              .then()
+                 .statusCode(200);
         }
 
-        // 2. Send the 101st request, which should be blocked
+        // The 101st request should be rate limited and return 429.
         given()
-            .header("X-Forwarded-For", testIp)
-            .when().get(endpoint)
-            .then()
-            .statusCode(429);
+          .header("X-Forwarded-For", uniqueIp)
+          .when().get("/hello")
+          .then()
+             .statusCode(429)
+             .body("error", is("Too Many Requests"));
     }
 }
