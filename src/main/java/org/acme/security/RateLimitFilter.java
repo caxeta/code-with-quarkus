@@ -11,6 +11,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,6 +25,7 @@ public class RateLimitFilter implements ContainerRequestFilter {
     private static final int MAX_REQUESTS = 100;
 
     // Size-bounded cache to prevent memory exhaustion DoS attacks
+    // SECURITY: Use a size-bounded cache (Caffeine) instead of an unbounded ConcurrentHashMap to prevent memory exhaustion DoS
     private final Cache<String, AtomicInteger> counts = Caffeine.newBuilder()
             .maximumSize(10000)
             .expireAfterWrite(1, TimeUnit.MINUTES)
@@ -37,7 +40,10 @@ public class RateLimitFilter implements ContainerRequestFilter {
 
         int count = counts.get(clientIp, k -> new AtomicInteger(0)).incrementAndGet();
 
-        if (count > MAX_REQUESTS) {
+        AtomicInteger count = counts.get(clientIp, k -> new AtomicInteger(0));
+        int currentCount = count.incrementAndGet();
+
+        if (currentCount > MAX_REQUESTS) {
             // SECURITY: Log abusive IPs for auditing. Prevent Log Injection by stripping newlines.
             LOG.warn("Rate limit exceeded for IP: " + clientIp.replaceAll("[\r\n]", ""));
 
