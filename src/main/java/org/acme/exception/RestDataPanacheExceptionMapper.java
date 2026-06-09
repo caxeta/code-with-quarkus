@@ -17,8 +17,6 @@ public class RestDataPanacheExceptionMapper implements ExceptionMapper<RestDataP
         // SECURITY: Prevent log injection by sanitizing the user input before logging
         String message = exception.getMessage();
         String sanitizedMessage = message != null ? message.replaceAll("[\r\n]", "") : "null";
-        // SECURITY: Prevent Log Injection by stripping newlines from the exception message, which may contain user input
-        String sanitizedMessage = exception.getMessage() != null ? exception.getMessage().replaceAll("[\r\n]", "") : "null";
         LOG.warn("Caught RestDataPanacheException: " + sanitizedMessage);
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity("{\"error\": \"Invalid request parameters\"}")
