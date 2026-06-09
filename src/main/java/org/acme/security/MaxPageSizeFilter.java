@@ -18,62 +18,45 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
-        List<String> sizeParams = requestContext.getUriInfo().getQueryParameters().get("size");
-        if (sizeParams != null) {
-            for (String sizeParam : sizeParams) {
-                if (sizeParam != null) {
-                    try {
-                        int size = Integer.parseInt(sizeParam);
-                        if (size <= 0 || size > MAX_SIZE) {
-                            // SECURITY: Prevent DoS via resource exhaustion and invalid offsets by bounding the page size
-                            // SECURITY: Log the blocked request to enable security auditing. Prevent log injection by sanitizing the parameter.
-                            LOG.warn("Blocked request with invalid size parameter: " + sizeParam.replaceAll("[\r\n]", ""));
-                            requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
-                                    .entity("{\"error\": \"Page size must be between 1 and " + MAX_SIZE + "\"}")
-                                    .type("application/json")
-                                    .build());
-                            return;
-                        }
-                    } catch (NumberFormatException e) {
-                        // SECURITY: Log the blocked request to enable security auditing. Prevent log injection by sanitizing the parameter.
-                        LOG.warn("Blocked request with non-numeric size parameter: " + sizeParam.replaceAll("[\r\n]", ""));
-                        requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
-                                .entity("{\"error\": \"Invalid size parameter\"}")
-                                .type("application/json")
-                                .build());
-                        return;
-                    }
-                }
-            }
+        // SECURITY: Prevent DoS via resource exhaustion and invalid offsets by bounding the page size
+        if (!validateParameter(requestContext, "size", 1, MAX_SIZE, "Page size must be between 1 and " + MAX_SIZE)) {
+            return;
         }
 
-        List<String> pageParams = requestContext.getUriInfo().getQueryParameters().get("page");
-        if (pageParams != null) {
-            for (String pageParam : pageParams) {
-                if (pageParam != null) {
+        // SECURITY: Prevent DoS via deep pagination and limit database impact
+        if (!validateParameter(requestContext, "page", 0, 10000, "Page index must be between 0 and 10000")) {
+            return;
+        }
+    }
+
+    private boolean validateParameter(ContainerRequestContext requestContext, String paramName, int min, int max, String errorMessage) {
+        List<String> params = requestContext.getUriInfo().getQueryParameters().get(paramName);
+        if (params != null) {
+            for (String param : params) {
+                if (param != null) {
                     try {
-                        int page = Integer.parseInt(pageParam);
-                        if (page < 0 || page > 10000) {
-                            // SECURITY: Prevent DoS via deep pagination and limit database impact
+                        int value = Integer.parseInt(param);
+                        if (value < min || value > max) {
                             // SECURITY: Log the blocked request to enable security auditing. Prevent log injection by sanitizing the parameter.
-                            LOG.warn("Blocked request with invalid page parameter: " + pageParam.replaceAll("[\r\n]", ""));
+                            LOG.warn("Blocked request with invalid " + paramName + " parameter: " + param.replaceAll("[\r\n]", ""));
                             requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
-                                    .entity("{\"error\": \"Page index must be between 0 and 10000\"}")
+                                    .entity("{\"error\": \"" + errorMessage + "\"}")
                                     .type("application/json")
                                     .build());
-                            return;
+                            return false;
                         }
                     } catch (NumberFormatException e) {
                         // SECURITY: Log the blocked request to enable security auditing. Prevent log injection by sanitizing the parameter.
-                        LOG.warn("Blocked request with non-numeric page parameter: " + pageParam.replaceAll("[\r\n]", ""));
+                        LOG.warn("Blocked request with non-numeric " + paramName + " parameter: " + param.replaceAll("[\r\n]", ""));
                         requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
-                                .entity("{\"error\": \"Invalid page parameter\"}")
+                                .entity("{\"error\": \"Invalid " + paramName + " parameter\"}")
                                 .type("application/json")
                                 .build());
-                        return;
+                        return false;
                     }
                 }
             }
         }
+        return true;
     }
 }
