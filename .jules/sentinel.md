@@ -130,3 +130,17 @@
 **Vulnerability:** A security filter (`SortInjectionFilter`) was updated to log potentially malicious sort parameters that were blocked. However, it logged the unsanitized user input (`sortParam`) directly via string concatenation (`LOG.warn("Invalid sort parameter blocked: " + sortParam)`). Because the regex validation failed on this parameter, it could contain any character, including newline characters (`\r` or `\n`). This allows an attacker to inject fake log entries (Log Injection, CWE-117) if the underlying logging system doesn't automatically escape newlines.
 **Learning:** Even when logging malicious input for security auditing, the input must still be sanitized. Unsanitized input in log messages can lead to log injection, allowing attackers to forge log entries or corrupt log analysis tools.
 **Prevention:** Always sanitize user input before logging it. To prevent Log Injection, explicitly strip newline characters (e.g., using `input.replaceAll("[\r\n]", "")`) before passing the string to the logger.
+
+## 2026-05-04 - Fix Log Injection in IP Logging
+**Vulnerability:** Log Injection (CWE-117) via `request.remoteAddress().host()`. In Quarkus, with `quarkus.http.proxy.proxy-address-forwarding=true` enabled, `request.remoteAddress().host()` resolves based on the potentially user-controlled `X-Forwarded-For` header.
+**Learning:** If this header is not sanitized, malicious users could inject newlines into the IP address, writing fake log entries or spoofing system events.
+**Prevention:** Explicitly strip newline characters (e.g., using `replaceAll("[\r\n]", "")`) before passing the string to the logger.
+
+## 2026-05-05 - Log Injection via Exception Messages
+**Vulnerability:** Exception messages that include user input (like `RestDataPanacheException` when parsing invalid query strings) were logged directly without sanitization, leading to potential Log Injection (CWE-117) via newline characters.
+**Learning:** Even internal framework exception messages can contain unsanitized user input. If logged directly, they pose a log injection risk.
+**Prevention:** Always sanitize exception messages (e.g., using `replaceAll("[\r\n]", "")`) if they are known to echo user input before passing them to a logger.
+## 2026-06-08 - Fix unbounded cache memory leak in RateLimitFilter
+**Vulnerability:** The RateLimitFilter used an unconstrained ConcurrentHashMap to track client IPs, making it vulnerable to a memory exhaustion Denial of Service (DoS) attack if flooded with spoofed or distributed IPs.
+**Learning:** To prevent Denial of Service (DoS) attacks via memory exhaustion in custom rate limiting filters, avoid using unbounded collections like `ConcurrentHashMap` and instead implement a size-bounded cache (e.g., using Caffeine with `maximumSize`).
+**Prevention:** Implement strict size bounds on any memory caching mechanisms directly exposed to external, untrusted input.
