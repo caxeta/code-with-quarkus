@@ -144,3 +144,8 @@
 **Vulnerability:** The RateLimitFilter used an unconstrained ConcurrentHashMap to track client IPs, making it vulnerable to a memory exhaustion Denial of Service (DoS) attack if flooded with spoofed or distributed IPs.
 **Learning:** To prevent Denial of Service (DoS) attacks via memory exhaustion in custom rate limiting filters, avoid using unbounded collections like `ConcurrentHashMap` and instead implement a size-bounded cache (e.g., using Caffeine with `maximumSize`).
 **Prevention:** Implement strict size bounds on any memory caching mechanisms directly exposed to external, untrusted input.
+
+## 2026-06-11 - Fixed syntax errors in security filters
+**Vulnerability:** A previous operation introduced syntax errors in security-related classes (`RateLimitFilter` and `RestDataPanacheExceptionMapper`), breaking compilation and potentially preventing the deployment of critical security features.
+**Learning:** Security fixes must be syntactically correct to be effective. Compilation errors in security filters can leave the application unprotected or unable to start.
+**Prevention:** Always compile and run tests (`./mvnw clean compile test`) after making any code changes, especially to security-critical components.
