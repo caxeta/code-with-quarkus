@@ -8,7 +8,6 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.Pattern;
 import org.hibernate.envers.Audited;
 
 /**
