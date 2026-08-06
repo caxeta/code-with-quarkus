@@ -67,3 +67,6 @@ I will add `@Cacheable` to `MyEntity.java`, with a comment explaining why it was
 ## 2026-04-15 - CDI Lookup Overhead in Envers RevisionListener
 **Learning:** Performing programmatic CDI lookups and context creation (`createCreationalContext()`, `getReference()`) inside an Envers `RevisionListener` is highly expensive and happens on every database transaction, causing significant performance degradation.
 **Action:** Directly request and cache the CDI proxy (e.g., `CDI.current().select(SecurityIdentity.class).get()`) as a `volatile` field in the `RevisionListener`. Because the proxy dynamically delegates to the active context, this removes lookup overhead while remaining thread-safe.
+## 2024-06-21 - Pre-compiling Regex in Hot Paths
+**Learning:** Using `String.replaceAll(regex, replacement)` inside a frequently accessed method (like a request filter) repeatedly compiles the same regular expression, causing unnecessary CPU overhead.
+**Action:** Extract the static regex into a `private static final Pattern` and use `Pattern.matcher(input).replaceAll(replacement)` to compile it once during class loading.

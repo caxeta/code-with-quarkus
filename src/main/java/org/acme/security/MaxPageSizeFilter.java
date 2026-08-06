@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION - 100) // SECURITY: Execute early to prevent DoS via expensive auth hashing
@@ -15,6 +16,7 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
 
     private static final Logger LOG = Logger.getLogger(MaxPageSizeFilter.class);
     private static final int MAX_SIZE = 100;
+    private static final Pattern NEWLINE_PATTERN = Pattern.compile("[\\r\\n]");
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -27,7 +29,7 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
                         if (size <= 0 || size > MAX_SIZE) {
                             // SECURITY: Prevent DoS via resource exhaustion and invalid offsets by bounding the page size
                             // SECURITY: Log the blocked request to enable security auditing. Prevent log injection by sanitizing the parameter.
-                            LOG.warn("Blocked request with invalid size parameter: " + sizeParam.replaceAll("[\r\n]", ""));
+                            LOG.warn("Blocked request with invalid size parameter: " + NEWLINE_PATTERN.matcher(sizeParam).replaceAll(""));
                             requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
                                     .entity("{\"error\": \"Page size must be between 1 and " + MAX_SIZE + "\"}")
                                     .type("application/json")
@@ -36,7 +38,7 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
                         }
                     } catch (NumberFormatException e) {
                         // SECURITY: Log the blocked request to enable security auditing. Prevent log injection by sanitizing the parameter.
-                        LOG.warn("Blocked request with non-numeric size parameter: " + sizeParam.replaceAll("[\r\n]", ""));
+                        LOG.warn("Blocked request with non-numeric size parameter: " + NEWLINE_PATTERN.matcher(sizeParam).replaceAll(""));
                         requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
                                 .entity("{\"error\": \"Invalid size parameter\"}")
                                 .type("application/json")
@@ -56,7 +58,7 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
                         if (page < 0 || page > 10000) {
                             // SECURITY: Prevent DoS via deep pagination and limit database impact
                             // SECURITY: Log the blocked request to enable security auditing. Prevent log injection by sanitizing the parameter.
-                            LOG.warn("Blocked request with invalid page parameter: " + pageParam.replaceAll("[\r\n]", ""));
+                            LOG.warn("Blocked request with invalid page parameter: " + NEWLINE_PATTERN.matcher(pageParam).replaceAll(""));
                             requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
                                     .entity("{\"error\": \"Page index must be between 0 and 10000\"}")
                                     .type("application/json")
@@ -65,7 +67,7 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
                         }
                     } catch (NumberFormatException e) {
                         // SECURITY: Log the blocked request to enable security auditing. Prevent log injection by sanitizing the parameter.
-                        LOG.warn("Blocked request with non-numeric page parameter: " + pageParam.replaceAll("[\r\n]", ""));
+                        LOG.warn("Blocked request with non-numeric page parameter: " + NEWLINE_PATTERN.matcher(pageParam).replaceAll(""));
                         requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
                                 .entity("{\"error\": \"Invalid page parameter\"}")
                                 .type("application/json")
