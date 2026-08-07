@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION - 100) // SECURITY: Execute early to prevent DoS via expensive auth hashing
@@ -15,6 +16,9 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
 
     private static final Logger LOG = Logger.getLogger(MaxPageSizeFilter.class);
     private static final int MAX_SIZE = 100;
+
+    // ⚡ Bolt: Pre-compiled Pattern for sanitization to reduce CPU overhead
+    private static final Pattern NEWLINE_PATTERN = Pattern.compile("[\r\n]");
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -36,7 +40,7 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
                         if (value < min || value > max) {
                             // SECURITY: Prevent DoS by bounding parameters
                             // SECURITY: Log the blocked request to enable security auditing. Prevent log injection by sanitizing the parameter.
-                            LOG.warn("Blocked request with invalid " + paramName + " parameter: " + param.replaceAll("[\r\n]", ""));
+                            LOG.warn("Blocked request with invalid " + paramName + " parameter: " + NEWLINE_PATTERN.matcher(param).replaceAll(""));
                             requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
                                     .entity("{\"error\": \"" + boundsErrorMessage + "\"}")
                                     .type("application/json")
@@ -45,7 +49,7 @@ public class MaxPageSizeFilter implements ContainerRequestFilter {
                         }
                     } catch (NumberFormatException e) {
                         // SECURITY: Log the blocked request to enable security auditing. Prevent log injection by sanitizing the parameter.
-                        LOG.warn("Blocked request with non-numeric " + paramName + " parameter: " + param.replaceAll("[\r\n]", ""));
+                        LOG.warn("Blocked request with non-numeric " + paramName + " parameter: " + NEWLINE_PATTERN.matcher(param).replaceAll(""));
                         requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)
                                 .entity("{\"error\": \"Invalid " + paramName + " parameter\"}")
                                 .type("application/json")
