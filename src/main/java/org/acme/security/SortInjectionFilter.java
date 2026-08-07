@@ -19,6 +19,9 @@ public class SortInjectionFilter implements ContainerRequestFilter {
     // SECURITY: Only allow alphanumeric characters, underscores, and commas (for multiple fields), optionally preceded by '+' or '-'
     private static final Pattern VALID_SORT_PATTERN = Pattern.compile("^[a-zA-Z0-9_+\\-.,]+$");
 
+    // ⚡ Bolt: Pre-compiled Pattern for sanitization to reduce CPU overhead
+    private static final Pattern NEWLINE_PATTERN = Pattern.compile("[\r\n]");
+
     @Override
     public void filter(ContainerRequestContext requestContext) {
         List<String> sortParams = requestContext.getUriInfo().getQueryParameters().get("sort");
@@ -27,7 +30,7 @@ public class SortInjectionFilter implements ContainerRequestFilter {
                 if (sortParam != null && !sortParam.isEmpty()) {
                     if (!VALID_SORT_PATTERN.matcher(sortParam).matches()) {
                         // SECURITY: Log potential HQL injection attempts for auditing. Prevent Log Injection by stripping newlines.
-                        LOG.warn("Invalid sort parameter blocked: " + sortParam.replaceAll("[\r\n]", ""));
+                        LOG.warn("Invalid sort parameter blocked: " + NEWLINE_PATTERN.matcher(sortParam).replaceAll(""));
 
                         // SECURITY: Prevent DoS or information disclosure via HQL injection/invalid sort paths
                         requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST)

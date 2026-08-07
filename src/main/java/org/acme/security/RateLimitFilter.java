@@ -13,6 +13,7 @@ import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION - 100) // SECURITY: Execute rate limiting BEFORE authentication to prevent DoS via expensive auth hashing
@@ -21,6 +22,9 @@ public class RateLimitFilter implements ContainerRequestFilter {
     private static final Logger LOG = Logger.getLogger(RateLimitFilter.class);
 
     private static final int MAX_REQUESTS = 100;
+
+    // ⚡ Bolt: Pre-compiled Pattern for sanitization to reduce CPU overhead
+    private static final Pattern NEWLINE_PATTERN = Pattern.compile("[\r\n]");
 
     // Size-bounded cache to prevent memory exhaustion DoS attacks
     private final Cache<String, AtomicInteger> counts = Caffeine.newBuilder()
@@ -39,7 +43,7 @@ public class RateLimitFilter implements ContainerRequestFilter {
 
         if (currentCount > MAX_REQUESTS) {
             // SECURITY: Prevent log injection by sanitizing the IP address, which may be user-provided (e.g. via X-Forwarded-For)
-            String sanitizedIp = clientIp != null ? clientIp.replaceAll("[\r\n]", "") : "unknown";
+            String sanitizedIp = clientIp != null ? NEWLINE_PATTERN.matcher(clientIp).replaceAll("") : "unknown";
             // SECURITY: Log abusive IPs for auditing
             LOG.warn("Rate limit exceeded for IP: " + sanitizedIp);
 
