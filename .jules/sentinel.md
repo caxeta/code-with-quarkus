@@ -149,3 +149,8 @@
 **Vulnerability:** A previous operation introduced syntax errors in security-related classes (`RateLimitFilter` and `RestDataPanacheExceptionMapper`), breaking compilation and potentially preventing the deployment of critical security features.
 **Learning:** Security fixes must be syntactically correct to be effective. Compilation errors in security filters can leave the application unprotected or unable to start.
 **Prevention:** Always compile and run tests (`./mvnw clean compile test`) after making any code changes, especially to security-critical components.
+
+## 2026-08-10 - Fix Log Injection in Exception Mappers
+**Vulnerability:** Several generic exception mappers (`GlobalErrorMapper`, `WebApplicationExceptionMapper`, `ProcessingExceptionMapper`, `JsonbExceptionMapper`, `NotFoundExceptionMapper`) logged potentially user-supplied error messages directly without sanitization. This allowed attackers to perform Log Injection (CWE-117) by injecting newline characters (`\r` or `\n`) into the inputs that eventually manifest in these framework exceptions, potentially falsifying audit logs.
+**Learning:** All exceptions mapped and logged at the boundaries must have their messages sanitized. Even internal framework exception messages can contain unsanitized user input. If logged directly, they pose a log injection risk.
+**Prevention:** Always sanitize exception messages (e.g., using `replaceAll("[\r\n]", "")`) if they are known to echo user input before passing them to a logger, and apply this pattern systematically to all application exception mappers.
