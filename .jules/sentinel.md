@@ -157,3 +157,8 @@
 **Vulnerability:** The application was correctly throwing `WebApplicationException` (e.g. 401 Unauthorized, 403 Forbidden, 405 Method Not Allowed), but the default framework behavior did not log these events. This resulted in a lack of visibility (CWE-778), preventing security monitoring tools from detecting brute-force attacks or unauthorized access probes.
 **Learning:** Security-relevant exceptions, even standard framework ones like `WebApplicationException`, must be explicitly logged to maintain a robust security audit trail.
 **Prevention:** Implement a custom `ExceptionMapper<WebApplicationException>` that explicitly audit-logs the event (sanitizing the message to prevent Log Injection) before returning the standard HTTP response.
+
+## 2026-08-31 - Cross-User Authentication Leak in RevisionListener
+**Vulnerability:** The `CustomRevisionListener` cached the `SecurityIdentity` object in an instance variable. Since `RevisionListener` is effectively a singleton, this caused a Cross-User Authentication Leak, where the identity of the first user who triggered an audit was reused for all subsequent users.
+**Learning:** Stateful components that are scoped as singletons or application-scoped must not cache request-scoped objects like `SecurityIdentity`.
+**Prevention:** Always retrieve request-scoped beans dynamically within the method execution context (e.g., via `CDI.current().select(SecurityIdentity.class).get()`).
