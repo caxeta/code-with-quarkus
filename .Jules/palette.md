@@ -1,3 +1,6 @@
 ## 2024-03-24 - Missing accessibility attributes on interactive inputs in static docs
 **Learning:** Native `<input>` elements like checkboxes and search inputs are inherently focusable and do not need `tabindex="0"`. Furthermore, disabled elements should not have `tabindex="0"`.
 **Action:** Always verify screen-reader accessibility (`aria-label`) on all interactive custom controls (`<input type="checkbox">`, `<input type="search">`) embedded directly in HTML files, especially in static sites where accessibility is commonly overlooked. However, avoid adding `tabindex="0"` to native elements, as they are implicitly in the tab sequence.
+## 2026-09-01 - Icon-only buttons lacking ARIA labels
+**Learning:** In statically generated HTML documentation (like Quarkus guides), interactive custom controls or utility buttons (like copy-to-clipboard icons) are often missed during accessibility audits compared to dynamic web app components. These icon-only buttons need an explicit accessible name.
+**Action:** Always verify screen-reader accessibility (`aria-label`) on all interactive custom controls (`<button>`, `<input type="checkbox">`, `<input type="search">`) embedded directly in HTML files, especially in static sites where accessibility is commonly overlooked.
