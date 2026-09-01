@@ -157,3 +157,7 @@
 **Vulnerability:** The application was correctly throwing `WebApplicationException` (e.g. 401 Unauthorized, 403 Forbidden, 405 Method Not Allowed), but the default framework behavior did not log these events. This resulted in a lack of visibility (CWE-778), preventing security monitoring tools from detecting brute-force attacks or unauthorized access probes.
 **Learning:** Security-relevant exceptions, even standard framework ones like `WebApplicationException`, must be explicitly logged to maintain a robust security audit trail.
 **Prevention:** Implement a custom `ExceptionMapper<WebApplicationException>` that explicitly audit-logs the event (sanitizing the message to prevent Log Injection) before returning the standard HTTP response.
+## 2026-09-01 - Cross-User Authentication Leak in RevisionListener
+**Vulnerability:** The `CustomRevisionListener` cached the request-scoped `SecurityIdentity` bean as an instance variable. Because `RevisionListener` acts as a singleton, the first user's identity was cached and reused for all subsequent database revisions made by other users, leading to incorrect audit trails and a Cross-User Authentication Leak.
+**Learning:** In Quarkus applications using Hibernate Envers, do not cache request-scoped beans (like `SecurityIdentity`) as instance variables within a `RevisionListener`.
+**Prevention:** Always retrieve request-scoped beans dynamically (e.g., `CDI.current().select(SecurityIdentity.class).get()`) within the method.
